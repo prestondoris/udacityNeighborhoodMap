@@ -9,11 +9,11 @@
     </head>
     <body>
         <aside id="aside">
-            <input type="text" data-bind="">
-            <input type="submit">
+            <input type="text" data-bind="testInput: filterResults">
             <ul data-bind="foreach: breweryList">
-                <li><span data-bind="text: name"></span></li>
+                <li><span data-bind="text: $data"></span></li>
             </ul>
+            <p id="error"></p>
         </aside>
         <main>
             <nav id="navigation">
