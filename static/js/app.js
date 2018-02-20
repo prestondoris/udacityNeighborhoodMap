@@ -10,6 +10,7 @@ var model = [];
 function Brewery(obj) {
     var self=this;
     self.name = ko.observable(obj.name);
+    self.visible = ko.observable(true);
 }
 
 
@@ -17,6 +18,24 @@ var ViewModel = function() {
     var self = this;
 
     self.breweryList = ko.observableArray([]);
+    self.input = ko.pureComputed({
+        read: function() {
+            return "";
+        },
+        write: function(value) {
+            if(value == "") {
+                for(var i=0; i<self.breweryList().length; i++) {
+                    self.breweryList()[i].visible(true);
+                }
+            } else {
+                for(var i=0; i<self.breweryList().length; i++) {
+                    if(self.breweryList()[i].name().search(value) == -1) {
+                        self.breweryList()[i].visible(false);
+                    }
+                }
+            }
+        }
+    });
 
     // Connect to Foursquare to get a list of breweryies to populate our model
     // as well as out observableArray "breweryList"
@@ -43,17 +62,13 @@ var ViewModel = function() {
                     lng: data.response.venues[i].location.lng,
                 };
                 model.push(venue);
-                self.breweryList.push(venue.name);
+                self.breweryList.push(new Brewery(venue));
             }
         },
         error: function(obj, string, status) {
             $('#error').text("There was an error loading the locations. Please try again.")
         }
     });
-
-    self.filterResults = function() {
-        return true;
-    }
 }
 
 function initMap() {
