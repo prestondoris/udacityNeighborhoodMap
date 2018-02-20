@@ -2,7 +2,9 @@ var map;
 var mapDiv = document.getElementById('map');
 var center = {lat: 37.8044, lng: -122.2711};
 
-var model = ko.observableArray([]);
+
+// Create the model for our data points.
+var model = [];
 $.ajax({
     url:'https://api.foursquare.com/v2/venues/search',
     dataType: 'json',
@@ -13,7 +15,7 @@ $.ajax({
             '&v=20140806' +
             '&m=foursquare'+
             '&query=brewery',
-    async: true,
+    async: false,
     success: function(data) {
         for(var i=0; i<data.response.venues.length; i++) {
             var venue = {
@@ -30,8 +32,24 @@ $.ajax({
     }
 });
 
-var ViewModel = function() {
+// Create a Brewery constructor
+function Brewery(obj) {
+    var self=this;
+    self.name = ko.observable(obj.name);
+    self.address = ko.observable(obj.address);
+    self.lat = ko.observable(obj.lat);
+    self.lng = ko.observable(obj.lng);
+}
 
+
+var ViewModel = function() {
+    var self = this;
+
+    self.breweryList = ko.observableArray([]);
+
+    for(var i=0; i<model.length; i++) {
+        self.breweryList.push(new Brewery(model[i]));
+    }
 }
 
 function initMap() {
@@ -41,8 +59,4 @@ function initMap() {
     });
 }
 
-
-
-
-
-ko.applyBindings(new ViewModel);
+ko.applyBindings(new ViewModel());

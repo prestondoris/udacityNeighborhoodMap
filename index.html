@@ -5,12 +5,25 @@
         <title></title>
         <link rel="stylesheet" text="tex/css" href="static/css/style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
     </head>
     <body>
-        <div id="map"></div>
-        <div id="test">
-            test
-        </div>
+        <aside id="aside">
+            <input type="text" data-bind="">
+            <input type="submit">
+            <ul data-bind="foreach: breweryList">
+                <li><span data-bind="text: name"></span></li>
+            </ul>
+        </aside>
+        <main>
+            <nav id="navigation">
+                <button>
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+            <div id="map"></div>
+        </main>
+
 
         <script src="bower_components/knockout/knockout.js"></script>
         <script src="static/js/app.js"></script>
