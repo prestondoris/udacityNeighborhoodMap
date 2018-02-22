@@ -48,12 +48,12 @@ var ViewModel = function() {
     self.enableMarker = function(item) {
         // get the id of the item in the breweryList observable array
         var id = item.id();
-        initMap.marker[id].setIcon(initMap.setMarker('746855'));
+        initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
     }
 
     self.disableMarker = function(item) {
         var id = item.id();
-        initMap.marker[id].setIcon(initMap.setMarker('cccccc'));
+        initMap.marker[id-1].setIcon(initMap.setMarker('cccccc'));
     }
 
     // Connect to Foursquare to get a list of breweryies to populate our model
@@ -390,8 +390,10 @@ var initMap = {
             // and highlight the marker that is hovered.
             this.marker[i].addListener('mouseover', (function(thisMarker, thisInfoWindow){
                 return function() {
-                    thisInfoWindow.open(map, thisMarker);
-                    this.setIcon(highlightedMarker);
+                    if(!userFocus){
+                        thisInfoWindow.open(map, thisMarker);
+                        this.setIcon(highlightedMarker);
+                    }
                 }
             })(this.marker[i], infoWindow));
             this.marker[i].addListener('mouseout', (function(thisInfoWindow){
