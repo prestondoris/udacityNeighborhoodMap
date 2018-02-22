@@ -74,10 +74,10 @@ var ViewModel = function() {
             for(var i=0; i<data.response.venues.length; i++) {
                 var venue = {
                     name: data.response.venues[i].name,
-                    address: data.response.venues[i].location.address+', '
-                        +data.response.venues[i].location.city+' '
-                        +data.response.venues[i].location.state+', '
-                        +data.response.venues[i].location.postalCode,
+                    address: data.response.venues[i].location.address,
+                    city: data.response.venues[i].location.city,
+                    state: data.response.venues[i].location.state,
+                    zip: data.response.venues[i].location.postalCode,
                     lat: data.response.venues[i].location.lat,
                     lng: data.response.venues[i].location.lng,
                     id: i+1
@@ -93,6 +93,8 @@ var ViewModel = function() {
 }
 
 var initMap = {
+
+    // This init function will initialize the map and render it on the page.
     init: function() {
         var styles = [
             {
@@ -321,11 +323,16 @@ var initMap = {
             styles: styles
         });
         this.map = map;
-        this.createMarker();
+        initMap.createMarker()
     },
 
+    // After init() is ran, this variable is set equal to the map created in
+    // init that way KO will have access to the map object.
     map: {},
 
+    // This is a blank array of markers that is populated by createMarker().
+    // By setting it as a key in our initMap object, it will allow KO to access
+    // the all of the markers on the list
     marker: [],
 
     // This will create a marker on the map for each location in the model. The
@@ -338,24 +345,49 @@ var initMap = {
         var highlightedMarker = this.setMarker('746855')
         for (var i=0; i<model.length; i++) {
             // create a marker for each location
-            var locationTitle = model[i].name;
+            var title = model[i].name;
             var location = {
                 lat: model[i].lat,
                 lng: model[i].lng
             }
+            var formatedAddress = ''+model[i].address+'<br>'
+                +model[i].city+', '+model[i].state+' '+model[i].zip;
+
+
             this.marker[i] = new google.maps.Marker({
                 position: location,
                 map: map,
                 icon: defaultMarker,
                 animation: google.maps.Animation.DROP,
-                title: locationTitle,
+                title: title,
                 id: i
             });
 
             // create an info window for each location
             var infoWindow = new google.maps.InfoWindow({
-                content: locationTitle
+                content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+'</p></div>'
             });
+
+            var userFocus = false;
+
+            // Add click event to marker. This functionality will allow the
+            // info window to stay open after a click, but close when the user
+            // clicks the close button on the info window
+            this.marker[i].addListener('click', (function(selectedMarker, thisInfoWindow){
+                return function() {
+                    thisInfoWindow.open(map, selectedMarker);
+                    thisInfoWindow.addListener('closeclick', function(){
+                        this.close();
+                        selectedMarker.setIcon(defaultMarker);
+                        userFocus = false;
+                    });
+                    this.setIcon(highlightedMarker);
+                    userFocus = true;
+                }
+            })(this.marker[i], infoWindow));
+
+            // Add mouseover/mouseout event listeners to display info window
+            // and highlight the marker that is hovered.
             this.marker[i].addListener('mouseover', (function(thisMarker, thisInfoWindow){
                 return function() {
                     thisInfoWindow.open(map, thisMarker);
@@ -364,8 +396,10 @@ var initMap = {
             })(this.marker[i], infoWindow));
             this.marker[i].addListener('mouseout', (function(thisInfoWindow){
                 return function() {
-                    thisInfoWindow.close();
-                    this.setIcon(defaultMarker);
+                    if(!userFocus) {
+                        thisInfoWindow.close();
+                        this.setIcon(defaultMarker);
+                    }
                 }
             })(infoWindow));
         };
