@@ -11,7 +11,13 @@
         <aside id="aside">
             <input type="text" data-bind="textInput: input">
             <ul data-bind="foreach: breweryList">
-                <li><span data-bind="text: name, visible: visible"></span></li>
+
+                <li>
+                    <div data-bind="event: {mouseover: $parent.enableMarker, mouseout: $parent.disableMarker}"
+                        class="item">
+                        <span data-bind="text: name, visible: visible"></span>
+                    </div>
+                </li>
             </ul>
             <p id="error"></p>
         </aside>
