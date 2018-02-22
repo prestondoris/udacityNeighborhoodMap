@@ -29,11 +29,15 @@ var ViewModel = function() {
             if(value == "") {
                 for(var i=0; i<self.breweryList().length; i++) {
                     self.breweryList()[i].visible(true);
+                    var id = self.breweryList()[i].id();
+                    initMap.marker[id-1].setMap(initMap.map);
                 }
             } else {
                 for(var i=0; i<self.breweryList().length; i++) {
                     if(self.breweryList()[i].name().search(value) == -1) {
                         self.breweryList()[i].visible(false);
+                        var id = self.breweryList()[i].id();
+                        initMap.marker[id-1].setMap(null);
                     }
                 }
             }
@@ -316,8 +320,11 @@ var initMap = {
             zoom: 10,
             styles: styles
         });
+        this.map = map;
         this.createMarker();
     },
+
+    map: {},
 
     marker: [],
 
