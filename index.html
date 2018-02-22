@@ -13,9 +13,8 @@
             <ul data-bind="foreach: breweryList">
 
                 <li>
-                    <div data-bind="event: {mouseover: $parent.enableMarker, mouseout: $parent.disableMarker}"
+                    <div data-bind="text: name, visible: visible, event: {mouseover: $parent.enableMarker, mouseout: $parent.disableMarker}"
                         class="item">
-                        <span data-bind="text: name, visible: visible"></span>
                     </div>
                 </li>
             </ul>
@@ -34,7 +33,7 @@
         <script src="bower_components/knockout/knockout.js"></script>
         <script src="static/js/app.js"></script>
         <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=initMap">
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=initMap.init">
         </script>
     </body>
 </html>
