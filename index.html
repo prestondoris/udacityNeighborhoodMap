@@ -9,7 +9,10 @@
     </head>
     <body>
         <aside id="aside">
-            <input type="text" data-bind="textInput: input">
+            <input type="text" data-bind="textInput: input" placeholder="Filter the Results">
+            <button>
+                <i class="fas fa-bars"></i>
+            </button>
             <ul data-bind="foreach: breweryList">
 
                 <li>
@@ -21,11 +24,6 @@
             <p id="error"></p>
         </aside>
         <main>
-            <nav id="navigation">
-                <button>
-                    <i class="fas fa-bars"></i>
-                </button>
-            </nav>
             <div id="map"></div>
         </main>
 
