@@ -12,6 +12,8 @@ function Brewery(obj) {
     self.name = ko.observable(obj.name);
     self.visible = ko.observable(true);
     self.id = ko.observable(obj.id);
+    self.lat = obj.lat;
+    self.lng = obj.lng;
 }
 
 
@@ -54,6 +56,16 @@ var ViewModel = function() {
     self.disableMarker = function(item) {
         var id = item.id();
         initMap.marker[id-1].setIcon(initMap.setMarker('cccccc'));
+    }
+
+    self.locateMarker = function(item) {
+        var location = {
+            lat: item.lat,
+            lng: item.lng
+        };
+        var id = item.id();
+        initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1]);
+        initMap.focusMarker(location);
     }
 
     // Connect to Foursquare to get a list of breweryies to populate our model
@@ -335,14 +347,17 @@ var initMap = {
     // the all of the markers on the list
     marker: [],
 
+    infoWindow: [],
+
     // This will create a marker on the map for each location in the model. The
     // location marker will have an info window that opens on click to display
     // the name of the brewery.
     createMarker: function() {
         var self=this;
-
+        var userFocus = false;
         var defaultMarker = this.setMarker('cccccc');
-        var highlightedMarker = this.setMarker('746855')
+        var highlightedMarker = this.setMarker('746855');
+
         for (var i=0; i<model.length; i++) {
             // create a marker for each location
             var title = model[i].name;
@@ -364,38 +379,40 @@ var initMap = {
             });
 
             // create an info window for each location
-            var infoWindow = new google.maps.InfoWindow({
+            var theWindow = new google.maps.InfoWindow({
                 content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+'</p></div>'
             });
 
-            var userFocus = false;
+            this.infoWindow[i] = theWindow;
 
             // Add click event to marker. This functionality will allow the
             // info window to stay open after a click, but close when the user
             // clicks the close button on the info window
-            this.marker[i].addListener('click', (function(selectedMarker, thisInfoWindow){
+            this.marker[i].addListener('click', (function(selectedMarker, thisInfoWindow, thisLocation){
                 return function() {
-                    thisInfoWindow.open(map, selectedMarker);
+                    initMap.showInfoWindow(thisInfoWindow, selectedMarker);
+                    initMap.focusMarker(thisLocation);
                     thisInfoWindow.addListener('closeclick', function(){
                         this.close();
                         selectedMarker.setIcon(defaultMarker);
                         userFocus = false;
+                        map.setCenter(center);
+                        map.setZoom(10);
                     });
-                    this.setIcon(highlightedMarker);
                     userFocus = true;
                 }
-            })(this.marker[i], infoWindow));
+            })(this.marker[i], theWindow, location));
 
             // Add mouseover/mouseout event listeners to display info window
             // and highlight the marker that is hovered.
-            this.marker[i].addListener('mouseover', (function(thisMarker, thisInfoWindow){
+            this.marker[i].addListener('mouseover', (function(selectedMarker, thisInfoWindow){
                 return function() {
                     if(!userFocus){
-                        thisInfoWindow.open(map, thisMarker);
+                        thisInfoWindow.open(map, selectedMarker);
                         this.setIcon(highlightedMarker);
                     }
                 }
-            })(this.marker[i], infoWindow));
+            })(this.marker[i], theWindow));
             this.marker[i].addListener('mouseout', (function(thisInfoWindow){
                 return function() {
                     if(!userFocus) {
@@ -403,7 +420,7 @@ var initMap = {
                         this.setIcon(defaultMarker);
                     }
                 }
-            })(infoWindow));
+            })(theWindow));
         };
     },
 
@@ -415,6 +432,18 @@ var initMap = {
                 new google.maps.Point(0,0),
                 new google.maps.Point(0,32));
         return marker;
+    },
+
+    showInfoWindow: function(theWindow, theMarker) {
+        var highlightedMarker = this.setMarker('746855');
+        theWindow.open(map, theMarker);
+        theMarker.setIcon(highlightedMarker);
+    },
+
+    // This will focus the marker on the specific marker
+    focusMarker: function(location) {
+        map.setCenter(location);
+        map.setZoom(13);
     }
 }
 

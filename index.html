@@ -9,14 +9,17 @@
     </head>
     <body>
         <aside id="aside">
-            <input type="text" data-bind="textInput: input" placeholder="Filter the Results">
+            <input type="text" data-bind="textInput: input" placeholder="Filter the Rjesults">
             <button>
                 <i class="fas fa-bars"></i>
             </button>
             <ul data-bind="foreach: breweryList">
 
                 <li>
-                    <div data-bind="text: name, visible: visible, event: {mouseover: $parent.enableMarker, mouseout: $parent.disableMarker}"
+                    <div data-bind="text: name, visible: visible,
+                        event: {mouseover: $parent.enableMarker,
+                                mouseout: $parent.disableMarker},
+                        click: $parent.locateMarker"
                         class="item">
                     </div>
                 </li>
