@@ -69,22 +69,21 @@ var ViewModel = function() {
         // get the id of the item in the breweryList observable array
         var id = item.id();
         if(event.type == 'mouseover') {
-            initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
+            initMap.marker[id-1].setIcon(initMap.setMarker('ffa600'));
         } else if(event.type == 'click') {
             var location = {
                 lat: item.lat,
                 lng: item.lng
             };
             var id = item.id();
-            initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1]);
-            initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
-            initMap.toggleFocusMarker(location, 10);
+            initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1], location);
+            initMap.marker[id-1].setIcon(initMap.setMarker('ffa600'));
         }
     }
 
     self.disableMarker = function(item) {
         var id = item.id();
-        initMap.marker[id-1].setIcon(initMap.setMarker('cccccc'));
+        initMap.marker[id-1].setIcon(initMap.setMarker('2ccd89'));
     }
 
     // Connect to Foursquare to get a list of breweryies to populate our model
@@ -128,226 +127,85 @@ var initMap = {
     // This init function will initialize the map and render it on the page.
     init: function() {
         var styles = [
+    {
+        "featureType": "administrative",
+        "elementType": "labels.text.fill",
+        "stylers": [
             {
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "color": "#242f3e"
-                  }
-                ]
-            },
-            {
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#746855"
-                  }
-                ]
-            },
-            {
-                "elementType": "labels.text.stroke",
-                "stylers": [
-                  {
-                    "color": "#242f3e"
-                  }
-                ]
-            },
-            {
-                "featureType": "administrative",
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "administrative.locality",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#d59563"
-                  }
-                ]
-            },
-            {
-                "featureType": "poi",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "poi",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#d59563"
-                  }
-                ]
-            },
-            {
-                "featureType": "poi.park",
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "color": "#263c3f"
-                  }
-                ]
-            },
-            {
-                "featureType": "poi.park",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#6b9a76"
-                  }
-                ]
-            },
-            {
-                "featureType": "road",
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "color": "#38414e"
-                  }
-                ]
-            },
-            {
-                "featureType": "road",
-                "elementType": "geometry.stroke",
-                "stylers": [
-                  {
-                    "color": "#212a37"
-                  }
-                ]
-            },
-            {
-                "featureType": "road",
-                "elementType": "labels.icon",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "road",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#9ca5b3"
-                  }
-                ]
-            },
-            {
-                "featureType": "road.arterial",
-                "elementType": "labels",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "road.highway",
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "color": "#746855"
-                  }
-                ]
-            },
-            {
-                "featureType": "road.highway",
-                "elementType": "geometry.stroke",
-                "stylers": [
-                  {
-                    "color": "#1f2835"
-                  }
-                ]
-            },
-            {
-                "featureType": "road.highway",
-                "elementType": "labels",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "road.highway",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#f3d19c"
-                  }
-                ]
-            },
-            {
-                "featureType": "road.local",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "transit",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-            },
-            {
-                "featureType": "transit",
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "color": "#2f3948"
-                  }
-                ]
-            },
-            {
-                "featureType": "transit.station",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#d59563"
-                  }
-                ]
-            },
-            {
-                "featureType": "water",
-                "elementType": "geometry",
-                "stylers": [
-                  {
-                    "color": "#17263c"
-                  }
-                ]
-            },
-            {
-                "featureType": "water",
-                "elementType": "labels.text.fill",
-                "stylers": [
-                  {
-                    "color": "#515c6d"
-                  }
-                ]
-            },
-            {
-                "featureType": "water",
-                "elementType": "labels.text.stroke",
-                "stylers": [
-                  {
-                    "color": "#17263c"
-                  }
-                ]
+                "color": "#444444"
             }
         ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "all",
+        "stylers": [
+            {
+                "color": "#f2f2f2"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "all",
+        "stylers": [
+            {
+                "saturation": -100
+            },
+            {
+                "lightness": 45
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "all",
+        "stylers": [
+            {
+                "color": "#46bcec"
+            },
+            {
+                "visibility": "on"
+            }
+        ]
+    }
+]
         map = new google.maps.Map(mapDiv, {
             center: center,
             zoom: 10,
@@ -374,8 +232,8 @@ var initMap = {
     createMarker: function() {
         var self=this;
         var userFocus = false;
-        var defaultMarker = this.setMarker('cccccc');
-        var highlightedMarker = this.setMarker('746855');
+        var defaultMarker = this.setMarker('2ccd89');
+        var highlightedMarker = this.setMarker('ffa600');
 
         for (var i=0; i<model.length; i++) {
             // create a marker for each location
@@ -407,7 +265,7 @@ var initMap = {
             // info window to stay open after a click, but close when the user
             // clicks the close button on the info window
             initMap.setInfoWindowProperties(theWindow, this.marker[i], location, userFocus);
-            this.infoWindow[i] = theWindow;
+            this.infoWindow.push(theWindow);
         };
     },
 
@@ -422,8 +280,8 @@ var initMap = {
     },
 
     setInfoWindowProperties: function(theWindow, theMarker, theLocation, userFocus) {
-        var highlightedMarker = this.setMarker('746855');
-        var defaultMarker = this.setMarker('cccccc');
+        var highlightedMarker = this.setMarker('ffa600');
+        var defaultMarker = this.setMarker('2ccd89');
 
         theMarker.addListener('click', function() {
             initMap.showInfoWindow(theWindow, theMarker, theLocation);
