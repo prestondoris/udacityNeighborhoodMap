@@ -50,6 +50,8 @@ var ViewModel = function() {
     self.enableMarker = function(item) {
         // get the id of the item in the breweryList observable array
         var id = item.id();
+        console.log(id-1);
+        console.log(initMap.marker[id-1]);
         initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
     }
 
@@ -65,7 +67,8 @@ var ViewModel = function() {
         };
         var id = item.id();
         initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1]);
-        initMap.focusMarker(location);
+        initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
+        initMap.toggleFocusMarker(location, 10);
     }
 
     // Connect to Foursquare to get a list of breweryies to populate our model
@@ -382,30 +385,16 @@ var initMap = {
             var theWindow = new google.maps.InfoWindow({
                 content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+'</p></div>'
             });
-
             this.infoWindow[i] = theWindow;
 
             // Add click event to marker. This functionality will allow the
             // info window to stay open after a click, but close when the user
             // clicks the close button on the info window
-            this.marker[i].addListener('click', (function(selectedMarker, thisInfoWindow, thisLocation){
-                return function() {
-                    initMap.showInfoWindow(thisInfoWindow, selectedMarker);
-                    initMap.focusMarker(thisLocation);
-                    thisInfoWindow.addListener('closeclick', function(){
-                        this.close();
-                        selectedMarker.setIcon(defaultMarker);
-                        userFocus = false;
-                        map.setCenter(center);
-                        map.setZoom(10);
-                    });
-                    userFocus = true;
-                }
-            })(this.marker[i], theWindow, location));
+            initMap.setInfoWindowProperties(theWindow, this.marker[i], location, userFocus);
 
             // Add mouseover/mouseout event listeners to display info window
             // and highlight the marker that is hovered.
-            this.marker[i].addListener('mouseover', (function(selectedMarker, thisInfoWindow){
+            /*this.marker[i].addListener('mouseover', (function(selectedMarker, thisInfoWindow){
                 return function() {
                     if(!userFocus){
                         thisInfoWindow.open(map, selectedMarker);
@@ -420,7 +409,7 @@ var initMap = {
                         this.setIcon(defaultMarker);
                     }
                 }
-            })(theWindow));
+            })(theWindow));*/
         };
     },
 
@@ -434,16 +423,53 @@ var initMap = {
         return marker;
     },
 
-    showInfoWindow: function(theWindow, theMarker) {
+    setInfoWindowProperties: function(theWindow, theMarker, theLocation, userFocus) {
         var highlightedMarker = this.setMarker('746855');
+        var defaultMarker = this.setMarker('cccccc');
+
+        theMarker.addListener('click', function() {
+            initMap.showInfoWindow(theWindow, theMarker, theLocation);
+            this.setIcon = highlightedMarker;
+
+            theWindow.addListener('closeclick', function(){
+                initMap.closeInfoWindow(this, theMarker);
+                this.setIcon(defaultMarker);
+                userFocus = false;
+            });
+            userFocus = true;
+        });
+
+
+        theMarker.addListener('mouseover', function(){
+            if(!userFocus) {
+                theWindow.open(map, this);
+                this.setIcon(highlightedMarker);
+            }
+        });
+        theMarker.addListener('mouseout', function(){
+            if(!userFocus) {
+                theWindow.close();
+                this.setIcon(defaultMarker);
+            }
+        });
+    },
+
+
+    showInfoWindow: function(theWindow, theMarker, theLocation) {
         theWindow.open(map, theMarker);
-        theMarker.setIcon(highlightedMarker);
+        initMap.toggleFocusMarker(theLocation, 13);
+    },
+
+
+    closeInfoWindow: function(theWindow, theMarker) {
+        theWindow.close();
+        initMap.toggleFocusMarker(center,10);
     },
 
     // This will focus the marker on the specific marker
-    focusMarker: function(location) {
+    toggleFocusMarker: function(location,zoom) {
         map.setCenter(location);
-        map.setZoom(13);
+        map.setZoom(zoom);
     }
 }
 
