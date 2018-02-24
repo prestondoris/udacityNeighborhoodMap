@@ -10,13 +10,15 @@
     <body>
         <main class="container">
             <aside id="aside">
-                <input type="text" data-bind="textInput: input, visible: inputHide" placeholder="Filter the Results">
-                <button data-bind="visible: showAside, click: toggleAsideDetails">
-                    <i class="fas fa-angle-double-right" ></i>
-                </button>
-                <button data-bind="visible: hideAside, click: toggleAsideDetails">
-                    <i class="fas fa-angle-double-left"></i>
-                </button>
+                <section class="userInput">
+                    <input type="text" data-bind="textInput: input, visible: inputHide" placeholder="Filter the Results">
+                    <button data-bind="visible: showAside, click: toggleAsideDetails">
+                        <i class="fas fa-angle-double-right" ></i>
+                    </button>
+                    <button data-bind="visible: hideAside, click: toggleAsideDetails">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                </section>
                 <ul data-bind="foreach: breweryList, visible: hide">
                     <li class="item" data-bind="visible: visible">
                         <p data-bind="text: name,
@@ -34,7 +36,7 @@
         <script src="bower_components/knockout/knockout.js"></script>
         <script src="static/js/app.js"></script>
         <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=initMap.init">
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=populateModel">
         </script>
     </body>
 </html>

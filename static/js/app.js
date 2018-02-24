@@ -5,6 +5,42 @@ var center = {lat: 37.8044, lng: -122.2711};
 
 // Create the model for our data points.
 var model = [];
+function populateModel() {
+    $.ajax({
+        url:'https://api.foursquare.com/v2/venues/search',
+        dataType: 'json',
+        data: 'limit=22' +
+                '&ll='+ center.lat +','+ center.lng +
+                '&client_id=JAL1UGFNFEMLAWL4TZXUFQYTPHDDMUB3AND4OETDSEFFC1M4'+
+                '&client_secret=M0UPWFB0MPWC5UR5H51K3WDUXZJACCIVYX4ENUNOAOLUYYSL'+
+                '&v=20140806' +
+                '&intent=browse'+
+                '&radius=50000'+
+                '&query=brewing,brewery',
+        async: true,
+        success: function(data) {
+            for(var i=0; i<data.response.venues.length; i++) {
+                var venue = {
+                    name: data.response.venues[i].name,
+                    address: data.response.venues[i].location.address,
+                    city: data.response.venues[i].location.city,
+                    state: data.response.venues[i].location.state,
+                    zip: data.response.venues[i].location.postalCode,
+                    lat: data.response.venues[i].location.lat,
+                    lng: data.response.venues[i].location.lng,
+                    id: i+1
+                };
+                console.log(venue);
+                model.push(venue);
+            }
+            initMap.init();
+            ko.applyBindings(new ViewModel());
+        },
+        error: function(obj, string, status) {
+            $('#error').text("There was an error loading the locations. Please try again.")
+        }
+    });
+}
 
 // Create a Brewery constructor
 function Brewery(obj) {
@@ -21,10 +57,14 @@ var ViewModel = function() {
     var self = this;
 
     self.breweryList = ko.observableArray([]);
-    self.showAside = ko.observable(false);
-    self.hideAside = ko.observable(true);
-    self.hide = ko.observable(true);
-    self.inputHide = ko.observable(true);
+    self.showAside = ko.observable(true);
+    self.hideAside = ko.observable(false);
+    self.hide = ko.observable(false);
+    self.inputHide = ko.observable(false);
+
+    for(var i=0; i<model.length; i++) {
+        self.breweryList.push(new Brewery(model[i]));
+    }
 
     // This will filter the results in the list of items in breweryList
     self.input = ko.pureComputed({
@@ -62,7 +102,6 @@ var ViewModel = function() {
             self.hideAside(true);
             self.showAside(false);
         }
-
     }
 
     self.enableMarker = function(item, event) {
@@ -88,38 +127,7 @@ var ViewModel = function() {
 
     // Connect to Foursquare to get a list of breweryies to populate our model
     // as well as out observableArray "breweryList"
-    $.ajax({
-        url:'https://api.foursquare.com/v2/venues/search',
-        dataType: 'json',
-        data: 'limit=22' +
-                '&ll='+ center.lat +','+ center.lng +
-                '&client_id=JAL1UGFNFEMLAWL4TZXUFQYTPHDDMUB3AND4OETDSEFFC1M4'+
-                '&client_secret=M0UPWFB0MPWC5UR5H51K3WDUXZJACCIVYX4ENUNOAOLUYYSL'+
-                '&v=20140806' +
-                '&intent=browse'+
-                '&radius=50000'+
-                '&query=brewing,brewery',
-        async: false,
-        success: function(data) {
-            for(var i=0; i<data.response.venues.length; i++) {
-                var venue = {
-                    name: data.response.venues[i].name,
-                    address: data.response.venues[i].location.address,
-                    city: data.response.venues[i].location.city,
-                    state: data.response.venues[i].location.state,
-                    zip: data.response.venues[i].location.postalCode,
-                    lat: data.response.venues[i].location.lat,
-                    lng: data.response.venues[i].location.lng,
-                    id: i+1
-                };
-                model.push(venue);
-                self.breweryList.push(new Brewery(venue));
-            }
-        },
-        error: function(obj, string, status) {
-            $('#error').text("There was an error loading the locations. Please try again.")
-        }
-    });
+
 }
 
 var initMap = {
@@ -212,7 +220,7 @@ var initMap = {
             styles: styles
         });
         this.map = map;
-        initMap.createMarker()
+        initMap.createMarker();
     },
 
     // After init() is ran, this variable is set equal to the map created in
@@ -327,5 +335,3 @@ var initMap = {
         map.setZoom(zoom);
     }
 }
-
-ko.applyBindings(new ViewModel());

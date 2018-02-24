@@ -23,7 +23,7 @@ html, body {
 
 ul {
     width:100%;
-    margin-right: 1em;
+    margin-right: 2em;
 }
 
 li {
@@ -44,14 +44,16 @@ li p {
 }
 
 input {
-    width: 75%;
+    width: 15em;
     padding: .35em;
     border-radius: 5px;
     margin: 1em 0em 0em 1em;
     font-size: 1.15em;
+    display: inline-block;
 }
 
 button {
     font-size: 1.15em;
     padding: .35em;
+    display: inline-block;
 }
