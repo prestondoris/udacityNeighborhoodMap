@@ -8,28 +8,28 @@
         <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
     </head>
     <body>
-        <aside id="aside">
-            <input type="text" data-bind="textInput: input" placeholder="Filter the Rjesults">
-            <button>
-                <i class="fas fa-bars"></i>
-            </button>
-            <ul data-bind="foreach: breweryList">
-
-                <li>
-                    <div data-bind="text: name, visible: visible,
-                        event: {mouseover: $parent.enableMarker,
-                                mouseout: $parent.disableMarker},
-                        click: $parent.locateMarker"
-                        class="item">
-                    </div>
-                </li>
-            </ul>
-            <p id="error"></p>
-        </aside>
-        <main>
+        <main class="container">
+            <aside id="aside">
+                <input type="text" data-bind="textInput: input, visible: inputHide" placeholder="Filter the Results">
+                <button data-bind="visible: showAside, click: toggleAsideDetails">
+                    <i class="fas fa-angle-double-right" ></i>
+                </button>
+                <button data-bind="visible: hideAside, click: toggleAsideDetails">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <ul data-bind="foreach: breweryList, visible: hide">
+                    <li class="item" data-bind="visible: visible">
+                        <p data-bind="text: name,
+                            event: {mouseover: $parent.enableMarker,
+                                    mouseout: $parent.disableMarker},
+                            click: $parent.enableMarker">
+                        </p>
+                    </li>
+                </ul>
+                <p id="error"></p>
+            </aside>
             <div id="map"></div>
         </main>
-
 
         <script src="bower_components/knockout/knockout.js"></script>
         <script src="static/js/app.js"></script>

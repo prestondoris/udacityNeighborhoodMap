@@ -21,6 +21,10 @@ var ViewModel = function() {
     var self = this;
 
     self.breweryList = ko.observableArray([]);
+    self.showAside = ko.observable(false);
+    self.hideAside = ko.observable(true);
+    self.hide = ko.observable(true);
+    self.inputHide = ko.observable(true);
 
     // This will filter the results in the list of items in breweryList
     self.input = ko.pureComputed({
@@ -46,29 +50,41 @@ var ViewModel = function() {
         }
     });
 
+    self.toggleAsideDetails = function() {
+        if(self.showAside() == false) {
+            self.hide(false);
+            self.inputHide(false);
+            self.hideAside(false);
+            self.showAside(true);
+        } else {
+            self.hide(true);
+            self.inputHide(true);
+            self.hideAside(true);
+            self.showAside(false);
+        }
 
-    self.enableMarker = function(item) {
+    }
+
+    self.enableMarker = function(item, event) {
         // get the id of the item in the breweryList observable array
         var id = item.id();
-        console.log(id-1);
-        console.log(initMap.marker[id-1]);
-        initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
+        if(event.type == 'mouseover') {
+            initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
+        } else if(event.type == 'click') {
+            var location = {
+                lat: item.lat,
+                lng: item.lng
+            };
+            var id = item.id();
+            initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1]);
+            initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
+            initMap.toggleFocusMarker(location, 10);
+        }
     }
 
     self.disableMarker = function(item) {
         var id = item.id();
         initMap.marker[id-1].setIcon(initMap.setMarker('cccccc'));
-    }
-
-    self.locateMarker = function(item) {
-        var location = {
-            lat: item.lat,
-            lng: item.lng
-        };
-        var id = item.id();
-        initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1]);
-        initMap.marker[id-1].setIcon(initMap.setMarker('746855'));
-        initMap.toggleFocusMarker(location, 10);
     }
 
     // Connect to Foursquare to get a list of breweryies to populate our model
@@ -385,31 +401,13 @@ var initMap = {
             var theWindow = new google.maps.InfoWindow({
                 content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+'</p></div>'
             });
-            this.infoWindow[i] = theWindow;
+
 
             // Add click event to marker. This functionality will allow the
             // info window to stay open after a click, but close when the user
             // clicks the close button on the info window
             initMap.setInfoWindowProperties(theWindow, this.marker[i], location, userFocus);
-
-            // Add mouseover/mouseout event listeners to display info window
-            // and highlight the marker that is hovered.
-            /*this.marker[i].addListener('mouseover', (function(selectedMarker, thisInfoWindow){
-                return function() {
-                    if(!userFocus){
-                        thisInfoWindow.open(map, selectedMarker);
-                        this.setIcon(highlightedMarker);
-                    }
-                }
-            })(this.marker[i], theWindow));
-            this.marker[i].addListener('mouseout', (function(thisInfoWindow){
-                return function() {
-                    if(!userFocus) {
-                        thisInfoWindow.close();
-                        this.setIcon(defaultMarker);
-                    }
-                }
-            })(theWindow));*/
+            this.infoWindow[i] = theWindow;
         };
     },
 
@@ -429,27 +427,26 @@ var initMap = {
 
         theMarker.addListener('click', function() {
             initMap.showInfoWindow(theWindow, theMarker, theLocation);
-            this.setIcon = highlightedMarker;
+            this.setIcon(highlightedMarker);
 
             theWindow.addListener('closeclick', function(){
                 initMap.closeInfoWindow(this, theMarker);
-                this.setIcon(defaultMarker);
+                theMarker.setIcon(defaultMarker);
                 userFocus = false;
             });
             userFocus = true;
         });
 
-
         theMarker.addListener('mouseover', function(){
             if(!userFocus) {
                 theWindow.open(map, this);
-                this.setIcon(highlightedMarker);
+                theMarker.setIcon(highlightedMarker);
             }
         });
         theMarker.addListener('mouseout', function(){
             if(!userFocus) {
                 theWindow.close();
-                this.setIcon(defaultMarker);
+                theMarker.setIcon(defaultMarker);
             }
         });
     },
