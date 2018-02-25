@@ -19,7 +19,6 @@ function populateModel() {
         async: true,
         success: function(data) {
             for(var i=0; i<data.response.venues.length; i++) {
-                var yelp = yelpCall(data.response.venues[i].name, data.response.venues[i].location.city);
                 var venue = {
                     name: data.response.venues[i].name,
                     address: data.response.venues[i].location.address,
@@ -257,6 +256,7 @@ var initMap = {
             }
             var formatedAddress = ''+model[i].address+'<br>'
                 +model[i].city+', '+model[i].state+' '+model[i].zip;
+            var url = model[i].url;
 
 
             this.marker[i] = new google.maps.Marker({
@@ -271,10 +271,8 @@ var initMap = {
             // create an info window for each location
             var theWindow = new google.maps.InfoWindow({
 
-                content: '<div><h3>'+title+
-                    '</h3><hr><p>'+
-                    formatedAddress+
-                    '</p></div>'
+                content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+
+                    '</p><a href="'+url+'" target="_blank">'+url+'</a></div>'
             });
 
 

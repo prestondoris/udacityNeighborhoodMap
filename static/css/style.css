@@ -50,7 +50,7 @@ li p {
 
 input {
     width: 15em;
-    padding: .35em;
+    padding: .4em;
     border-radius: 5px;
     margin: 1em 0em 0em 1em;
     font-size: 1.15em;
@@ -64,4 +64,7 @@ button {
     background-color: #46bcec;
     border-radius: 5px;
     cursor: pointer;
+}
+.showAside {
+    margin-top: 25em;
 }
