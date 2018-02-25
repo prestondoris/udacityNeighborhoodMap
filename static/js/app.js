@@ -11,7 +11,8 @@ function populateModel() {
         data: 'limit=22' +
                 '&ll='+ center.lat +','+ center.lng +
                 '&client_id=JAL1UGFNFEMLAWL4TZXUFQYTPHDDMUB3AND4OETDSEFFC1M4'+
-                '&client_secret=M0UPWFB0MPWC5UR5H51K3WDUXZJACCIVYX4ENUNOAOLUYYSL'+
+                '&client_secret='+
+                    'M0UPWFB0MPWC5UR5H51K3WDUXZJACCIVYX4ENUNOAOLUYYSL'+
                 '&v=20140806' +
                 '&intent=browse'+
                 '&radius=50000'+
@@ -36,7 +37,8 @@ function populateModel() {
             ko.applyBindings(new ViewModel());
         },
         error: function(obj, string, status) {
-            $('#error').text("There was an error loading the locations. Please try again later.")
+            $('#error').text("There was an error loading the locations. "+
+                "Please try again later.");
         }
     });
 }
@@ -72,17 +74,18 @@ var ViewModel = function() {
             return "";
         },
         write: function(value) {
-            if(value == "") {
+            var id;
+            if(value === "") {
                 for(var i=0; i<self.breweryList().length; i++) {
                     self.breweryList()[i].visible(true);
-                    var id = self.breweryList()[i].id();
+                    id = self.breweryList()[i].id();
                     initMap.marker[id-1].setMap(initMap.map);
                 }
             } else {
-                for(var i=0; i<self.breweryList().length; i++) {
-                    if(self.breweryList()[i].name().search(value) == -1) {
-                        self.breweryList()[i].visible(false);
-                        var id = self.breweryList()[i].id();
+                for(var j=0; j<self.breweryList().length; j++) {
+                    if(self.breweryList()[j].name().search(value) == -1) {
+                        self.breweryList()[j].visible(false);
+                        id = self.breweryList()[j].id();
                         initMap.marker[id-1].setMap(null);
                     }
                 }
@@ -92,10 +95,10 @@ var ViewModel = function() {
 
     self.newVenue = function(item) {
         populateModel(item.value);
-    }
+    };
 
     self.toggleAsideDetails = function() {
-        if(self.showAside() == false) {
+        if(self.showAside() === false) {
             self.hide(false);
             self.inputHide(false);
             self.hideAside(false);
@@ -106,7 +109,7 @@ var ViewModel = function() {
             self.hideAside(true);
             self.showAside(false);
         }
-    }
+    };
 
     self.enableMarker = function(item, event) {
         // get the id of the item in the breweryList observable array
@@ -118,106 +121,106 @@ var ViewModel = function() {
                 lat: item.lat,
                 lng: item.lng
             };
-            var id = item.id();
-            initMap.showInfoWindow(initMap.infoWindow[id-1], initMap.marker[id-1], location);
+            initMap.showInfoWindow(initMap.infoWindow[id-1],
+                    initMap.marker[id-1], location);
             initMap.marker[id-1].setIcon(initMap.setMarker('ffa600'));
         }
-    }
+    };
 
     self.disableMarker = function(item) {
         var id = item.id();
         initMap.marker[id-1].setIcon(initMap.setMarker('2ccd89'));
-    }
+    };
 
     // Connect to Foursquare to get a list of breweryies to populate our model
     // as well as out observableArray "breweryList"
 
-}
+};
 
 var initMap = {
 
     // This init function will initialize the map and render it on the page.
     init: function() {
         var styles = [
-    {
-        "featureType": "administrative",
-        "elementType": "labels.text.fill",
-        "stylers": [
             {
-                "color": "#444444"
-            }
-        ]
-    },
-    {
-        "featureType": "landscape",
-        "elementType": "all",
-        "stylers": [
-            {
-                "color": "#f2f2f2"
-            }
-        ]
-    },
-    {
-        "featureType": "poi",
-        "elementType": "all",
-        "stylers": [
-            {
-                "visibility": "off"
-            }
-        ]
-    },
-    {
-        "featureType": "road",
-        "elementType": "all",
-        "stylers": [
-            {
-                "saturation": -100
+                "featureType": "administrative",
+                "elementType": "labels.text.fill",
+                "stylers": [
+                    {
+                        "color": "#444444"
+                    }
+                ]
             },
             {
-                "lightness": 45
-            }
-        ]
-    },
-    {
-        "featureType": "road.highway",
-        "elementType": "all",
-        "stylers": [
-            {
-                "visibility": "simplified"
-            }
-        ]
-    },
-    {
-        "featureType": "road.arterial",
-        "elementType": "labels.icon",
-        "stylers": [
-            {
-                "visibility": "off"
-            }
-        ]
-    },
-    {
-        "featureType": "transit",
-        "elementType": "all",
-        "stylers": [
-            {
-                "visibility": "off"
-            }
-        ]
-    },
-    {
-        "featureType": "water",
-        "elementType": "all",
-        "stylers": [
-            {
-                "color": "#46bcec"
+                "featureType": "landscape",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "color": "#f2f2f2"
+                    }
+                ]
             },
             {
-                "visibility": "on"
+                "featureType": "poi",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "off"
+                    }
+                ]
+            },
+            {
+                "featureType": "road",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "saturation": -100
+                    },
+                    {
+                        "lightness": 45
+                    }
+                ]
+            },
+            {
+                "featureType": "road.highway",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "simplified"
+                    }
+                ]
+            },
+            {
+                "featureType": "road.arterial",
+                "elementType": "labels.icon",
+                "stylers": [
+                    {
+                        "visibility": "off"
+                    }
+                ]
+            },
+            {
+                "featureType": "transit",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "off"
+                    }
+                ]
+            },
+            {
+                "featureType": "water",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "color": "#46bcec"
+                    },
+                    {
+                        "visibility": "on"
+                    }
+                ]
             }
-        ]
-    }
-]
+        ];
         map = new google.maps.Map(mapDiv, {
             center: center,
             zoom: 10,
@@ -242,10 +245,8 @@ var initMap = {
     // location marker will have an info window that opens on click to display
     // the name of the brewery.
     createMarker: function() {
-        var self=this;
         var userFocus = false;
         var defaultMarker = this.setMarker('2ccd89');
-        var highlightedMarker = this.setMarker('ffa600');
 
         for (var i=0; i<model.length; i++) {
             // create a marker for each location
@@ -253,9 +254,9 @@ var initMap = {
             var location = {
                 lat: model[i].lat,
                 lng: model[i].lng
-            }
-            var formatedAddress = ''+model[i].address+'<br>'
-                +model[i].city+', '+model[i].state+' '+model[i].zip;
+            };
+            var formatedAddress = ''+model[i].address+'<br>'+
+                model[i].city+', '+model[i].state+' '+model[i].zip;
             var url = model[i].url;
 
 
@@ -279,9 +280,10 @@ var initMap = {
             // Add click event to marker. This functionality will allow the
             // info window to stay open after a click, but close when the user
             // clicks the close button on the info window
-            initMap.setInfoWindowProperties(theWindow, this.marker[i], location, userFocus);
+            initMap.setInfoWindowProperties(theWindow, this.marker[i],
+                    location, userFocus);
             this.infoWindow.push(theWindow);
-        };
+        }
     },
 
     // This will set marker style and color for items on the map.
@@ -294,7 +296,8 @@ var initMap = {
         return marker;
     },
 
-    setInfoWindowProperties: function(theWindow, theMarker, theLocation, userFocus) {
+    setInfoWindowProperties: function(theWindow, theMarker,
+                                      theLocation, userFocus) {
         var highlightedMarker = this.setMarker('ffa600');
         var defaultMarker = this.setMarker('2ccd89');
 
@@ -341,4 +344,4 @@ var initMap = {
         map.setCenter(location);
         map.setZoom(zoom);
     }
-}
+};
