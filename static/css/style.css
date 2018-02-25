@@ -33,6 +33,11 @@ li {
     border-radius: 5px;
     cursor: pointer;
     box-shadow: 0px 0px 5px #333333;
+    background-color: #2ccd89;
+}
+
+li:hover {
+    background-color: #ffa600;
 }
 
 li p {
@@ -56,4 +61,7 @@ button {
     font-size: 1.15em;
     padding: .35em;
     display: inline-block;
+    background-color: #46bcec;
+    border-radius: 5px;
+    cursor: pointer;
 }

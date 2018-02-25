@@ -1,6 +1,7 @@
 var map;
 var mapDiv = document.getElementById('map');
 var center = {lat: 37.8044, lng: -122.2711};
+var yelpAPIKey = '0gpsYUJ2Mbq-Z8i_TotbOTwRbndYnppCxWLqSzrFm8XpHLs2VVpqxkouVCIM10A20LHPxakN5IwEHt9YszflNHfW6V-ZVkhW3pBWialMpLdXwnCg62Pg3UgDx96RWnYx';
 
 
 // Create the model for our data points.
@@ -20,6 +21,7 @@ function populateModel() {
         async: true,
         success: function(data) {
             for(var i=0; i<data.response.venues.length; i++) {
+                var yelp = yelpCall(data.response.venues[i].name, data.response.venues[i].location.city);
                 var venue = {
                     name: data.response.venues[i].name,
                     address: data.response.venues[i].location.address,
@@ -30,17 +32,50 @@ function populateModel() {
                     lng: data.response.venues[i].location.lng,
                     id: i+1
                 };
-                console.log(venue);
                 model.push(venue);
+                console.log(yelp);
             }
             initMap.init();
             ko.applyBindings(new ViewModel());
         },
         error: function(obj, string, status) {
-            $('#error').text("There was an error loading the locations. Please try again.")
+            $('#error').text("There was an error loading the locations. Please try again later.")
         }
     });
 }
+
+function yelpCall(name, city) {
+    var alterName = name.replace(/ /g, '-');
+    var alterCity = city.replace(/ /g, '-');
+    var yelpReviews = [];
+    $.ajax({
+        url: 'https://api.yelp.com/v3/businesses/' +
+            alterName +
+            '-'+
+            alterCity +
+            '/reviews',
+        dataType: 'json',
+        headers: 'Bearer 0gpsYUJ2Mbq-Z8i_TotbOTwRbndYnppCxWLqSzrFm8XpHLs2VVpqx'+
+                'kouVCIM10A20LHPxakN5IwEHt9YszflNHfW6V-ZVkhW3pBWialMpLdXwnCg62'+
+                'Pg3UgDx96RWnYx',
+        async: true,
+        success: function(data) {
+            for(var i=0; i<data.length; i++) {
+                if(i<2) {
+                    var review = {
+                        rating: data[i].rating,
+                        text: data[i].text
+                    }
+                    yelpReviews.push(review);
+                } else {
+                    break;
+                }
+            }
+        }
+    });
+    return yelpReviews;
+}
+
 
 // Create a Brewery constructor
 function Brewery(obj) {
@@ -89,6 +124,10 @@ var ViewModel = function() {
             }
         }
     });
+
+    self.newVenue = function(item) {
+        populateModel(item.value);
+    }
 
     self.toggleAsideDetails = function() {
         if(self.showAside() == false) {
@@ -265,7 +304,11 @@ var initMap = {
 
             // create an info window for each location
             var theWindow = new google.maps.InfoWindow({
-                content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+'</p></div>'
+
+                content: '<div><h3>'+title+
+                    '</h3><hr><p>'+
+                    formatedAddress+
+                    '</p></div>'
             });
 
 
