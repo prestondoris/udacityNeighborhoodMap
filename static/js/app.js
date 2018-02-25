@@ -1,8 +1,6 @@
 var map;
 var mapDiv = document.getElementById('map');
 var center = {lat: 37.8044, lng: -122.2711};
-var yelpAPIKey = '0gpsYUJ2Mbq-Z8i_TotbOTwRbndYnppCxWLqSzrFm8XpHLs2VVpqxkouVCIM10A20LHPxakN5IwEHt9YszflNHfW6V-ZVkhW3pBWialMpLdXwnCg62Pg3UgDx96RWnYx';
-
 
 // Create the model for our data points.
 var model = [];
@@ -30,10 +28,10 @@ function populateModel() {
                     zip: data.response.venues[i].location.postalCode,
                     lat: data.response.venues[i].location.lat,
                     lng: data.response.venues[i].location.lng,
+                    url: data.response.venues[i].url,
                     id: i+1
                 };
                 model.push(venue);
-                console.log(yelp);
             }
             initMap.init();
             ko.applyBindings(new ViewModel());
@@ -42,38 +40,6 @@ function populateModel() {
             $('#error').text("There was an error loading the locations. Please try again later.")
         }
     });
-}
-
-function yelpCall(name, city) {
-    var alterName = name.replace(/ /g, '-');
-    var alterCity = city.replace(/ /g, '-');
-    var yelpReviews = [];
-    $.ajax({
-        url: 'https://api.yelp.com/v3/businesses/' +
-            alterName +
-            '-'+
-            alterCity +
-            '/reviews',
-        dataType: 'json',
-        headers: 'Bearer 0gpsYUJ2Mbq-Z8i_TotbOTwRbndYnppCxWLqSzrFm8XpHLs2VVpqx'+
-                'kouVCIM10A20LHPxakN5IwEHt9YszflNHfW6V-ZVkhW3pBWialMpLdXwnCg62'+
-                'Pg3UgDx96RWnYx',
-        async: true,
-        success: function(data) {
-            for(var i=0; i<data.length; i++) {
-                if(i<2) {
-                    var review = {
-                        rating: data[i].rating,
-                        text: data[i].text
-                    }
-                    yelpReviews.push(review);
-                } else {
-                    break;
-                }
-            }
-        }
-    });
-    return yelpReviews;
 }
 
 
