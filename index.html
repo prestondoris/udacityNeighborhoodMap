@@ -33,15 +33,14 @@
                     </li>
                 </ul>
 
-                <p id="error"></p>
+                <p id="error" data-bind="text: errorMessage, visible: error"></p>
             </aside>
             <div id="map"></div>
         </main>
 
         <script src="bower_components/knockout/knockout.js"></script>
         <script src="static/js/app.js"></script>
-        <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=initMap.init">
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=initMap.init" onerror="googleMapsError()">
         </script>
     </body>
 </html>
