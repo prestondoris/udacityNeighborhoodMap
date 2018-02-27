@@ -149,7 +149,7 @@ var ViewModel = function(success) {
 
 function googleMapsError() {
     alert('There was an error loading the Map. We apologize for this. Please try this again later.');
-};
+}
 
 var initMap = {
     // This init function will initialize the map and render it on the page.
