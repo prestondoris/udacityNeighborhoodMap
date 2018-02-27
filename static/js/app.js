@@ -148,7 +148,6 @@ var ViewModel = function(success) {
 };
 
 function googleMapsError() {
-    console.log("error");
     alert('There was an error loading the Map. We apologize for this. Please try this again later.');
 };
 
