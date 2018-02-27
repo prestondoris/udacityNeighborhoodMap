@@ -4,6 +4,8 @@ var center = {lat: 37.8044, lng: -122.2711};
 
 // Create the model for our data points.
 var model = [];
+
+// Connect to Foursquare to get a list of breweryies to populate our model
 function populateModel() {
     $.ajax({
         url:'https://api.foursquare.com/v2/venues/search',
@@ -33,7 +35,7 @@ function populateModel() {
                 };
                 model.push(venue);
             }
-            initMap.init();
+            initMap.createMarker();
             ko.applyBindings(new ViewModel());
         },
         error: function(obj, string, status) {
@@ -111,34 +113,28 @@ var ViewModel = function() {
         }
     };
 
-    self.enableMarker = function(item, event) {
+    self.enableMarker = function(item) {
         // get the id of the item in the breweryList observable array
-        var id = item.id();
-        if(event.type == 'mouseover') {
-            initMap.marker[id-1].setIcon(initMap.setMarker('ffa600'));
-        } else if(event.type == 'click') {
-            var location = {
-                lat: item.lat,
-                lng: item.lng
-            };
-            initMap.showInfoWindow(initMap.infoWindow[id-1],
-                    initMap.marker[id-1], location);
-            initMap.marker[id-1].setIcon(initMap.setMarker('ffa600'));
-        }
+        var id = item.id() - 1;
+        console.log(id);
+        initMap.markers[id].setIcon(initMap.setMarker('ffa600'));
     };
 
     self.disableMarker = function(item) {
-        var id = item.id();
-        initMap.marker[id-1].setIcon(initMap.setMarker('2ccd89'));
+        var id = item.id() - 1;
+        initMap.markers[id].setIcon(initMap.setMarker('2ccd89'));
     };
 
-    // Connect to Foursquare to get a list of breweryies to populate our model
-    // as well as out observableArray "breweryList"
+    self.showInfoWindow = function(item) {
+        var id = item.id()-1;
+        var info = initMap.getModelInfo(model[id]);
+        initMap.setInfoWindow(info, initMap.markers[id-1]);
+        initMap.showInfoWindow(initMap.markers[id-1], info.location);
+    };
 
 };
 
 var initMap = {
-
     // This init function will initialize the map and render it on the page.
     init: function() {
         var styles = [
@@ -227,7 +223,8 @@ var initMap = {
             styles: styles
         });
         this.map = map;
-        initMap.createMarker();
+        this.infoWindow = new google.maps.InfoWindow();
+        populateModel();
     },
 
     // After init() is ran, this variable is set equal to the map created in
@@ -237,53 +234,66 @@ var initMap = {
     // This is a blank array of markers that is populated by createMarker().
     // By setting it as a key in our initMap object, it will allow KO to access
     // the all of the markers on the list
-    marker: [],
+    markers: [],
 
-    infoWindow: [],
+    // after init() is ran, this variable is set equal to the instance of the
+    // info window that was created in init().
+    infoWindow: {},
 
     // This will create a marker on the map for each location in the model. The
     // location marker will have an info window that opens on click to display
     // the name of the brewery.
     createMarker: function() {
-        var userFocus = false;
+        var highlightedMarker = this.setMarker('ffa600');
         var defaultMarker = this.setMarker('2ccd89');
 
         for (var i=0; i<model.length; i++) {
             // create a marker for each location
-            var title = model[i].name;
-            var location = {
-                lat: model[i].lat,
-                lng: model[i].lng
-            };
-            var formatedAddress = ''+model[i].address+'<br>'+
-                model[i].city+', '+model[i].state+' '+model[i].zip;
-            var url = model[i].url;
+            var item = initMap.getModelInfo(model[i]);
 
-
-            this.marker[i] = new google.maps.Marker({
-                position: location,
+            var marker = new google.maps.Marker({
+                position: item.location,
                 map: map,
                 icon: defaultMarker,
                 animation: google.maps.Animation.DROP,
-                title: title,
+                title: item.title,
                 id: i
             });
+            this.markers.push(marker);
 
-            // create an info window for each location
-            var theWindow = new google.maps.InfoWindow({
+            marker.addListener('click', (function(thisItem, thisMarker) {
+                return function() {
+                    initMap.setInfoWindow(thisItem, thisMarker);
+                    initMap.showInfoWindow(thisMarker, thisItem.location);
+                    this.setIcon(highlightedMarker);
+                };
+            })(item, marker));
 
-                content: '<div><h3>'+title+'</h3><hr><p>'+formatedAddress+
-                    '</p><a href="'+url+'" target="_blank">'+url+'</a></div>'
+            marker.addListener('mouseover', function(){
+                this.setIcon(highlightedMarker);
             });
-
-
-            // Add click event to marker. This functionality will allow the
-            // info window to stay open after a click, but close when the user
-            // clicks the close button on the info window
-            initMap.setInfoWindowProperties(theWindow, this.marker[i],
-                    location, userFocus);
-            this.infoWindow.push(theWindow);
+            marker.addListener('mouseout', function(){
+                this.setIcon(defaultMarker);
+            });
         }
+    },
+
+    getModelInfo: function(modelItem) {
+        var title = modelItem.name;
+        var location = {
+            lat: modelItem.lat,
+            lng: modelItem.lng
+        };
+        var formatedAddress = ''+modelItem.address+'<br>'+
+            modelItem.city+', '+modelItem.state+' '+modelItem.zip;
+        var url = modelItem.url;
+
+        return {
+            name: title,
+            location: location,
+            address: formatedAddress,
+            url: url
+        };
     },
 
     // This will set marker style and color for items on the map.
@@ -296,44 +306,29 @@ var initMap = {
         return marker;
     },
 
-    setInfoWindowProperties: function(theWindow, theMarker,
-                                      theLocation, userFocus) {
-        var highlightedMarker = this.setMarker('ffa600');
+    // This function will set the content and ability to close the info window
+    setInfoWindow: function(modelInfo, marker) {
         var defaultMarker = this.setMarker('2ccd89');
-
-        theMarker.addListener('click', function() {
-            initMap.showInfoWindow(theWindow, theMarker, theLocation);
-            this.setIcon(highlightedMarker);
-
-            theWindow.addListener('closeclick', function(){
-                initMap.closeInfoWindow(this, theMarker);
-                theMarker.setIcon(defaultMarker);
-                userFocus = false;
+        if(this.infoWindow.marker != marker) {
+            this.infoWindow.setContent('');
+            this.infoWindow.marker = marker;
+            this.infoWindow.setContent('<div><h3>' + modelInfo.name +'</h3><hr><p>' +
+                                modelInfo.address + '</p><a href="' + modelInfo.url +
+                                '" target="_blank">' + modelInfo.url + '</a></div>');
+            this.infoWindow.addListener('closeclick', function(){
+                initMap.closeInfoWindow(this, marker);
+                marker.setIcon(defaultMarker);
             });
-            userFocus = true;
-        });
-
-        theMarker.addListener('mouseover', function(){
-            if(!userFocus) {
-                theWindow.open(map, this);
-                theMarker.setIcon(highlightedMarker);
-            }
-        });
-        theMarker.addListener('mouseout', function(){
-            if(!userFocus) {
-                theWindow.close();
-                theMarker.setIcon(defaultMarker);
-            }
-        });
+        }
     },
 
-
-    showInfoWindow: function(theWindow, theMarker, theLocation) {
-        theWindow.open(map, theMarker);
+    // Display the info window
+    showInfoWindow: function(theMarker, theLocation) {
+        this.infoWindow.open(map, theMarker);
         initMap.toggleFocusMarker(theLocation, 13);
     },
 
-
+    // Close the info window
     closeInfoWindow: function(theWindow, theMarker) {
         theWindow.close();
         initMap.toggleFocusMarker(center,10);

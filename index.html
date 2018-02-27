@@ -2,7 +2,8 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Brewery Map</title>
         <link rel="stylesheet" text="tex/css" href="static/css/style.css">
         <script src="bower_components/jquery/jquery.js"></script>
         <script defer src="bower_components/fontawesome/fontawesome-all.min.js"></script>
@@ -12,22 +13,26 @@
             <aside id="aside">
                 <section class="userInput">
                     <input type="text" data-bind="textInput: input, visible: inputHide" placeholder="Filter the Results">
+
                     <button class="showAside" data-bind="visible: showAside, click: toggleAsideDetails">
                         <i class="fas fa-angle-double-right" ></i>
                     </button>
+
                     <button data-bind="visible: hideAside, click: toggleAsideDetails">
                         <i class="fas fa-angle-double-left"></i>
                     </button>
                 </section>
+
                 <ul data-bind="foreach: breweryList, visible: hide">
                     <li class="item" data-bind="visible: visible">
                         <p data-bind="text: name,
                             event: {mouseover: $parent.enableMarker,
                                     mouseout: $parent.disableMarker},
-                            click: $parent.enableMarker">
+                            click: $parent.showInfoWindow">
                         </p>
                     </li>
                 </ul>
+
                 <p id="error"></p>
             </aside>
             <div id="map"></div>
@@ -36,7 +41,7 @@
         <script src="bower_components/knockout/knockout.js"></script>
         <script src="static/js/app.js"></script>
         <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=populateModel">
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKcNmv15glyLwUeDxkWf63TQOibF5MvXY&callback=initMap.init">
         </script>
     </body>
 </html>
