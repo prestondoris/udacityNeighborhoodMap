@@ -265,6 +265,8 @@ var initMap = {
         var defaultMarker = this.setMarker('2ccd89');
 
         for (var i=0; i<model.length; i++) {
+            /* jshint loopfunc: true */
+            
             // create a marker for each location
             var item = initMap.getModelInfo(model[i]);
 
